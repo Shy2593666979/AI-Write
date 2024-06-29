@@ -3,10 +3,11 @@ from fastapi import APIRouter
 from mongoengine import connect
 from app.models import Style
 from loguru import logger
+from app.settings import setting
 
 class mongoDB:
     def __init__(self):
-        pass
+        connect(setting.mongodb, setting.host)
     
     def createStyle(self, styleImage, styleTitle, styleContent):
         style_obj = Style(styleImage, styleTitle, styleContent)
@@ -84,6 +85,23 @@ class mongoDB:
             return {
                 "Mark": True,
                 "result": resultObj.to_json()
+            }
+        except Exception as err:
+            logger.error(err)
+            return {
+                "Mark": False,
+                "result": "fail"
+            }
+            
+    def deleteStyleById(self, className, uid):
+        try:
+            if className == 'style':
+                resultObj = Style.objects.with_id(uid)
+            
+            resultObj.delete()
+            return {
+                "Mark": True,
+                "result": "success delete"
             }
         except Exception as err:
             logger.error(err)

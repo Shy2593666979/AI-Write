@@ -15,3 +15,8 @@ class mongodb_operate:
     def updateStyle(self, styleImage = None, styleTitle = None, styleContent = None):
         return self.myMongoDB.modifyStyle(styleImage, styleTitle, styleContent)
     
+    def getStyleAll(self):
+        return self.myMongoDB.getStyleAll()
+    
+    def deleteStyle(self, uid):
+        return self.myMongoDB.deleteStyleById('style', uid)
