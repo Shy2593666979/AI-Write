@@ -1,16 +1,16 @@
 from datetime import datetime
 from fastapi import APIRouter
 from mongoengine import connect
-from app.models import Style
+from models import Style
 from loguru import logger
-from app.settings import setting
+from settings import setting
 
 class mongoDB:
     def __init__(self):
-        connect(setting.mongodb, setting.host)
+        connect(db=setting.db, host=setting.host)
     
     def createStyle(self, styleImage, styleTitle, styleContent):
-        style_obj = Style(styleImage, styleTitle, styleContent)
+        style_obj = Style(styleImage=styleImage, styleTitle=styleTitle, styleContent=styleContent)
         
         try:
             resultObj = style_obj.save()
@@ -65,7 +65,7 @@ class mongoDB:
             styleObj = Style.objects.all()
             result = []
             for style in styleObj:
-                result.append({"uid": style.id,"styleImage": style.styleImage, "styleTitle": style.styleTitle, "styleContent": style.styleContet, "updateTime": style.updateTime})
+                result.append({"uid": style.id,"styleImage": style.styleImage, "styleTitle": style.styleTitle, "styleContent": style.styleContent, "updateTime": style.updateTime})
             return {
                 "Mark": True,
                 "result": result

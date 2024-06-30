@@ -1,6 +1,6 @@
 
 class Settings:
-    mongodb = "py_database"
+    db = "py_database"
     
     port = "27017"
     

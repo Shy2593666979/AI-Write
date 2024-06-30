@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Form, File, UploadFile
+from crud.base import mongoDB
+from modules.base import mongodb_operate
 from models import Style
-from app.modules import styleMongoDB
+from modules import styleMongoDB
 
 router = APIRouter(tags=["风格模板管理"])
 
-router.post("/style")
-async def createStyle(styleTitle = Form(...), styleContent = Form(...), styleImage = UploadFile(...)):
+
+@router.post("/style")
+async def createStyle(styleTitle: str = Form(...), styleContent: str = Form(...), styleImage: UploadFile = File(...)):
     
     if styleImage is not None:
         imageContent = await styleImage.read() 
@@ -19,7 +22,7 @@ async def createStyle(styleTitle = Form(...), styleContent = Form(...), styleIma
     else:
         return {"code": 400, "message": "fail"}
 
-router.put("/style")
+@router.put("/style")
 async def modifyStyle(uid = Form(...), styleImage = UploadFile(None), styleTitle = Form(None), styleContent = Form(None)):
     resultObj = styleMongoDB.updateStyle(uid, styleImage=styleImage, styleTitle=styleTitle, styleContent=styleContent)
     
@@ -28,7 +31,7 @@ async def modifyStyle(uid = Form(...), styleImage = UploadFile(None), styleTitle
     else:
         return {"code": 400, "message": "fail"}
 
-router.get("/style")
+@router.get("/style")
 async def getStyle():
     resultObj = styleMongoDB.getStyleAll()
     
@@ -37,7 +40,7 @@ async def getStyle():
     else:
         return {"code": 400, "message": "fail"}
     
-router.delete("style")
+@router.delete("/style")
 async def deleteStyle(uid = Form(...)):
     resultObj = styleMongoDB.deleteStyle(uid)
     

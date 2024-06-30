@@ -1,5 +1,5 @@
-from app.models import Style
-from app.crud.base import mongoDB
+from models import Style
+from crud.base import mongoDB
 from typing import Optional
 
 class mongodb_operate:

@@ -4,8 +4,8 @@ from routers import style
 
 app = FastAPI()
 
-app.include_router(style.router, prefix="/api")
+app.include_router(style.router)
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port="6666")
+    uvicorn.run("server:app", host="0.0.0.0", port=6666)

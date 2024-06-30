@@ -1,6 +1,6 @@
 import requests
 import openai
-from app.settings import setting
+from settings import setting
 
 
 
