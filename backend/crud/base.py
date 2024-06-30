@@ -1,7 +1,8 @@
 from datetime import datetime
+import json
 from fastapi import APIRouter
 from mongoengine import connect
-from models import Style
+from models import Style, Tool
 from loguru import logger
 from settings import setting
 
@@ -56,7 +57,7 @@ class mongoDB:
             
         except Exception as err:
             logger.error(err)
-            return {
+            return {    
                 "Mark": False,
                 "result": "create style fail"
             }
@@ -65,7 +66,7 @@ class mongoDB:
             styleObj = Style.objects.all()
             result = []
             for style in styleObj:
-                result.append({"uid": style.id,"styleImage": style.styleImage, "styleTitle": style.styleTitle, "styleContent": style.styleContent, "updateTime": style.updateTime})
+                result.append({"uid": str(style.id), "styleImage": style.styleImage, "styleTitle": style.styleTitle, "styleContent": style.styleContent, "updateTime": style.updateTime})
             return {
                 "Mark": True,
                 "result": result
@@ -81,7 +82,8 @@ class mongoDB:
         try:
             if className == 'style':
                 resultObj = Style.objects.with_id(uid)
-            
+            if className == 'tool':
+                resultObj = Tool.objects.with_id(uid)
             return {
                 "Mark": True,
                 "result": resultObj.to_json()
@@ -93,11 +95,13 @@ class mongoDB:
                 "result": "fail"
             }
             
-    def deleteStyleById(self, className, uid):
+    def deleteObjectById(self, className, uid):
         try:
             if className == 'style':
                 resultObj = Style.objects.with_id(uid)
-            
+            if className == 'tool':
+                resultObj = Tool.objects.with_id(uid)
+                
             resultObj.delete()
             return {
                 "Mark": True,
@@ -109,3 +113,77 @@ class mongoDB:
                 "Mark": False,
                 "result": "fail"
             }
+    def createTool(self, toolImage, toolTitle, toolDescription, toolPrompt):
+        try:
+            toolObj = Tool(toolImage=toolImage, toolTitle=toolTitle, toolDescription=toolDescription, toolPrompt=toolPrompt)
+            
+            resultObj = toolObj.save()
+            return {
+                "Mark": True,
+                "result": {
+                    "uid": str(resultObj.id),
+                    "toolTitle": resultObj.toolTitle,
+                    "toolDescription": resultObj.toolDescription,
+                    "toolPrompt": resultObj.toolPrompt
+                }
+            }
+        except Exception as err :
+            logger.error(err)
+            
+            return {
+                "Mark": False,
+                "result": "create fail!"
+            }
+    
+    def modifyTool(self, uid: str, toolImage = None, toolTitle = None, toolDescription = None, toolPrompt = None):
+        try:
+            toolObj = Tool.objects.with_id(uid)
+            
+            if toolImage is not None:
+                toolObj.update(toolImage=toolImage)
+            if toolTitle is not None:
+                toolObj.update(toolTitle=toolTitle)
+            if toolDescription is not None:
+                toolObj.update(toolDescription=toolDescription)
+            if toolPrompt is not None:
+                toolObj.update(toolPrompt=toolPrompt)
+            toolObj.update(updateTime=datetime.utcnow)
+            
+            toolObj.save()
+            resultObj = Tool.objects.with_id(uid)
+            return {
+                "Mark": True,
+                "result": {
+                    "uid": str(resultObj.id),
+                    "toolTitle": resultObj.toolTitle,
+                    "toolDescription": resultObj.toolDescription,
+                    "toolPrompt": resultObj.toolPrompt
+                }
+            }
+        except Exception as err :
+            logger.error(err)
+            
+            return {
+                "Mark": False,
+                "result": "update fail!"
+            }
+    def getToolAll(self):
+        try:
+            toolObj = Tool.objects.all()
+            result = []
+            for tool in toolObj:
+                result.append({"uid": str(tool.id), "toolImage": tool.toolImage, "toolTitle": tool.toolTitle, "toolDescription": tool.toolDescription, "toolPrompt": tool.toolPrompt, "updateTime": tool.updateTime})
+            
+            return {
+                "Mark": True,
+                "result": result
+            }
+        except Exception as err :
+            logger.error(err)
+            
+            return {
+                "Mark": False,
+                "result": "can not find target"
+            }
+                   
+            

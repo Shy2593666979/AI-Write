@@ -7,3 +7,9 @@ class Style(Document):
     styleContent = StringField(required=True)
     updateTime = DateTimeField(default=datetime.utcnow)
 
+class Tool(Document):
+    toolImage = BinaryField(required=True)
+    toolTitle = StringField(required=True)
+    toolDecription = StringField(required=True)
+    toolPrompt = StringField(required=True)
+    updateTime = DateTimeField(default=datetime.utcnow)

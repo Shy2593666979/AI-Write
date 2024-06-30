@@ -4,4 +4,4 @@ from crud.base import mongoDB
 
 myMongoDB = mongoDB()
 
-styleMongoDB = mongodb_operate(myMongoDB)
+baseMongoDB = mongodb_operate(myMongoDB)
