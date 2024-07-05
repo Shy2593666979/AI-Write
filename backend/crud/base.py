@@ -1,20 +1,23 @@
+import base64
 from datetime import datetime
 import json
-from fastapi import APIRouter
+from backend.utils.image import createImage, deleteImage
 from mongoengine import connect
-from models import Style, Tool
+from backend.models import Style, Tool
 from loguru import logger
-from settings import setting
+from backend.settings import setting
 
 class mongoDB:
     def __init__(self):
-        connect(db=setting.db, host=setting.host)
+        connect(db=setting.mongodb_db, host=setting.mongodb_host)
     
-    def createStyle(self, styleImage, styleTitle, styleContent):
+    def createStyle(self, styleImage, imageName, styleTitle, styleContent):
         style_obj = Style(styleImage=styleImage, styleTitle=styleTitle, styleContent=styleContent)
         
         try:
             resultObj = style_obj.save()
+            imageObj = self.updateStyleLogoUrl(str(resultObj.id), imageName)
+            
             return {
                 "Mark": True,
                 "result": {
@@ -31,7 +34,7 @@ class mongoDB:
                 "result": "create style fail"
             }
 
-    def modifyStyle(self, uid, styleImage = None, styleTitle = None, styleContent = None):
+    def modifyStyle(self, uid, styleImage = None, styleTitle = None, styleContent = None, imagePath = None):
         styleObj = Style.objects.with_id(uid)
         
         try:
@@ -41,6 +44,9 @@ class mongoDB:
                 styleObj.update(styleTitle=styleTitle)
             if styleContent is not None:
                 styleObj.update(styleContent=styleContent)
+            if imagePath is not None:
+                styleObj.update(styleImagePath=imagePath)    
+                
             styleObj.update(updateTime=datetime.utcnow)
             
             styleObj.save()
@@ -66,7 +72,8 @@ class mongoDB:
             styleObj = Style.objects.all()
             result = []
             for style in styleObj:
-                result.append({"uid": str(style.id), "styleImage": style.styleImage, "styleTitle": style.styleTitle, "styleContent": style.styleContent, "updateTime": style.updateTime})
+                result.append({"uid": str(style.id), "styleImage": base64.b64encode(style.styleImage).decode('utf-8'), "styleTitle": style.styleTitle, "styleContent": style.styleContent, "styleImagePath": style.styleImagePath,"updateTime": style.updateTime})
+            
             return {
                 "Mark": True,
                 "result": result
@@ -78,6 +85,28 @@ class mongoDB:
                 "Mark": False,
                 "result": "can not find target"
             }
+    
+    def updateStyleLogoUrl(self, uid, imageName):
+        try:
+            obj = self.getObjectById('style', uid)
+            if obj.get('Mark'):
+                result_dict = json.loads(obj.get('result'))
+            
+            imagePath = createImage(uid=uid, imageName=imageName, styleImage=result_dict['styleImage'])
+            resultObj = self.modifyStyle(uid=uid, imagePath=imagePath)
+            if resultObj.get('Mark'):
+                return {
+                    "Mark": True,
+                    "result": "success update ImageUrl"
+                }
+        except Exception as err:
+            deleteObj = self.deleteObjectById('style', uid)
+            logger.error(err)
+            return {
+                "Mark":False,
+                "result": "update err"
+            }
+  
     def getObjectById(self, className, uid):
         try:
             if className == 'style':

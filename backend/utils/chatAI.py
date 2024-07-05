@@ -1,6 +1,6 @@
 import requests
 import openai
-from settings import setting
+from backend.settings import setting
 
 
 

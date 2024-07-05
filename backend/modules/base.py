@@ -1,5 +1,5 @@
-from models import Style
-from crud.base import mongoDB
+from backend.models import Style
+from backend.crud.base import mongoDB
 from typing import Optional
 
 class mongodb_operate:
@@ -9,8 +9,8 @@ class mongodb_operate:
     def getObjectById(self, className, uid):
         return self.myMongoDB.getObjectById(className, uid)
     
-    def createStyle(self, styleImage, styleTitle, styleContent):
-        return self.myMongoDB.createStyle(styleImage, styleTitle, styleContent)
+    def createStyle(self, styleImage, imageName, styleTitle, styleContent):
+        return self.myMongoDB.createStyle(styleImage, imageName, styleTitle, styleContent)
     
     def updateStyle(self, uid, styleImage = None, styleTitle = None, styleContent = None):
         return self.myMongoDB.modifyStyle(uid, styleImage, styleTitle, styleContent)

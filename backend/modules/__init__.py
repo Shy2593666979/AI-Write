@@ -1,5 +1,5 @@
-from modules.base import mongodb_operate
-from crud.base import mongoDB
+from backend.modules.base import mongodb_operate
+from backend.crud.base import mongoDB
 
 
 myMongoDB = mongoDB()

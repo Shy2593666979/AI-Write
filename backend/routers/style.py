@@ -1,24 +1,28 @@
 from fastapi import APIRouter, Form, File, UploadFile
 from fastapi.encoders import jsonable_encoder
-from crud.base import mongoDB
-from modules.base import mongodb_operate
-from models import Style
-from modules import baseMongoDB
-from utils.chatAI import chat_deepseek
+from backend.crud.base import mongoDB
+from backend.modules.base import mongodb_operate
+from backend.models.base import Style
+from backend.modules import baseMongoDB
+from backend.utils.chatAI import chat_deepseek
+from backend.settings import setting
 from loguru import logger
 
 router = APIRouter(tags=["风格模板管理"])
 
 
 @router.post("/style")
-async def createStyle(styleTitle: str = Form(...), styleContent: str = Form(...), styleImage: UploadFile = File(...)):
-    
+async def createStyle(styleTitle: str = Form(...), styleContent: str = Form(...), styleImage: UploadFile = File(None)):
+    #breakpoint()
     if styleImage is not None:
         imageContent = await styleImage.read() 
+        imageName = styleImage.filename
     else:
-        imageContent = None
+        with open(setting.style_default_logo_binary, "rb") as image:
+            imageContent = image.read()
+        imageName = setting.style_default_logo.split('/')[-1]
         
-    resultObj = baseMongoDB.createStyle(styleImage=imageContent, styleTitle=styleTitle, styleContent=styleContent)
+    resultObj = baseMongoDB.createStyle(styleImage=imageContent, imageName=imageName, styleTitle=styleTitle, styleContent=styleContent)
     
     if resultObj.get('Mark'):
         return jsonable_encoder({"code": 200, "message": "success", "result": resultObj['result']})
