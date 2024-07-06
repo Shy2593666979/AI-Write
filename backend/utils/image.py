@@ -22,5 +22,9 @@ def createImage(uid, styleImage, imageName):
 
 
 def deleteImage(imagePath):
+    imagePath = "upimg/" + imagePath.split('/')[-1]
+    print(imagePath)
     if os.path.exists(imagePath):
         os.remove(imagePath)
+    else:
+        raise ValueError(f"can not find {imagePath}!")

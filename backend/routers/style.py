@@ -31,7 +31,13 @@ async def createStyle(styleTitle: str = Form(...), styleContent: str = Form(...)
 
 @router.put("/style")
 async def modifyStyle(uid: str = Form(...), styleImage: UploadFile = File(None), styleTitle: str = Form(None), styleContent: str = Form(None)):
-    resultObj = baseMongoDB.updateStyle(uid, styleImage=styleImage, styleTitle=styleTitle, styleContent=styleContent)
+    if styleImage is not None:
+        imageContent = await styleImage.read()
+        imageName = styleImage.filename
+    else:
+        imageContent = None
+        imageName = None
+    resultObj = baseMongoDB.updateStyle(uid, styleImage=imageContent, imageName=imageName, styleTitle=styleTitle, styleContent=styleContent)
     
     if resultObj.get('Mark'):
         return jsonable_encoder({"code": 200, "message": "success", "result":resultObj["result"]})

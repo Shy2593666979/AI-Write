@@ -34,10 +34,12 @@ class mongoDB:
                 "result": "create style fail"
             }
 
-    def modifyStyle(self, uid, styleImage = None, styleTitle = None, styleContent = None, imagePath = None):
+    def modifyStyle(self, uid, styleImage = None, imageName = None, styleTitle = None, styleContent = None, imagePath = None):
+        #breakpoint()
         styleObj = Style.objects.with_id(uid)
-        
         try:
+            if imageName is not None:
+                imageObj = self.updateStyleLogoUrl(uid=uid, imageName=imageName)
             if styleImage is not None:
                 styleObj.update(styleImage=styleImage)
             if styleTitle is not None:
@@ -57,6 +59,7 @@ class mongoDB:
                     "uid": str(resultObj.id),
                     "styleTitle": resultObj.styleTitle,
                     "styleContent": resultObj.styleContent,
+                    "styleImagePath": resultObj.styleImagePath,
                     "updateTime": resultObj.updateTime
                 }
             }
@@ -125,12 +128,13 @@ class mongoDB:
             }
             
     def deleteObjectById(self, className, uid):
+        #breakpoint()
         try:
             if className == 'style':
                 resultObj = Style.objects.with_id(uid)
+                deleteImage(resultObj.styleImagePath)
             if className == 'tool':
                 resultObj = Tool.objects.with_id(uid)
-                
             resultObj.delete()
             return {
                 "Mark": True,

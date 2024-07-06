@@ -12,8 +12,8 @@ class mongodb_operate:
     def createStyle(self, styleImage, imageName, styleTitle, styleContent):
         return self.myMongoDB.createStyle(styleImage, imageName, styleTitle, styleContent)
     
-    def updateStyle(self, uid, styleImage = None, styleTitle = None, styleContent = None):
-        return self.myMongoDB.modifyStyle(uid, styleImage, styleTitle, styleContent)
+    def updateStyle(self, uid, styleImage = None, imageName = None, styleTitle = None, styleContent = None):
+        return self.myMongoDB.modifyStyle(uid, styleImage, imageName, styleTitle, styleContent)
     
     def getStyleAll(self):
         return self.myMongoDB.getStyleAll()
