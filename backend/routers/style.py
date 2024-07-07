@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, Form, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from backend.crud.base import mongoDB
@@ -71,8 +72,10 @@ async def runStyle(styleId: str = Form(...), originalContent: str = Form(...), t
         return jsonable_encoder({"code": 400, "message": "run fail"})
     else:
         try:
-            prompt = toolObj.toolPrompt.format(originalContent, styleObj.styleContent)
+            styleResult = json.loads(styleObj.get('result'))
+            toolResult = json.loads(toolObj.get('result'))
             
+            prompt = toolResult['toolPrompt'].format(originalContent, styleResult['styleContent'])
             response = chat_deepseek(prompt)
             return jsonable_encoder({"code": 200, "message": "success", "result": response})
         except Exception as err:

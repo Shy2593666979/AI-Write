@@ -21,11 +21,11 @@ class mongodb_operate:
     def deleteStyle(self, uid):
         return self.myMongoDB.deleteObjectById('style', uid)
     
-    def createTool(self, toolImage, toolTitle, toolDescription, toolPrompt):
-        return self.myMongoDB.createTool(toolImage, toolTitle, toolDescription, toolPrompt)
+    def createTool(self, toolImage, imageName, toolTitle, toolDescription, toolPrompt):
+        return self.myMongoDB.createTool(toolImage, imageName, toolTitle, toolDescription, toolPrompt)
     
-    def updateTool(self, uid, toolImage = None, toolTitle = None, toolDescription = None, toolPrompt = None):
-        return self.myMongoDB.modifyTool(uid, toolImage, toolTitle, toolDescription, toolPrompt)
+    def updateTool(self, uid, toolImage = None, imageName = None, toolTitle = None, toolDescription = None, toolPrompt = None):
+        return self.myMongoDB.modifyTool(uid, toolImage, imageName, toolTitle, toolDescription, toolPrompt)
     
     def deleteTool(self, uid):
         return self.myMongoDB.deleteObjectById('tool', uid)

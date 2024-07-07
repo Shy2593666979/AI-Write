@@ -17,7 +17,6 @@ class mongoDB:
         try:
             resultObj = style_obj.save()
             imageObj = self.updateStyleLogoUrl(str(resultObj.id), imageName)
-            
             return {
                 "Mark": True,
                 "result": {
@@ -28,6 +27,7 @@ class mongoDB:
                 }
             }
         except Exception as err:
+            deleteObj = self.deleteObjectById('style', str(resultObj.id))
             logger.error(err)
             return {
                 "Mark": False,
@@ -95,7 +95,7 @@ class mongoDB:
             if obj.get('Mark'):
                 result_dict = json.loads(obj.get('result'))
             
-            imagePath = createImage(uid=uid, imageName=imageName, styleImage=result_dict['styleImage'])
+            imagePath = createImage(uid=uid, imageName=imageName, imageContent=result_dict['styleImage'])
             resultObj = self.modifyStyle(uid=uid, imagePath=imagePath)
             if resultObj.get('Mark'):
                 return {
@@ -103,7 +103,6 @@ class mongoDB:
                     "result": "success update ImageUrl"
                 }
         except Exception as err:
-            deleteObj = self.deleteObjectById('style', uid)
             logger.error(err)
             return {
                 "Mark":False,
@@ -135,6 +134,7 @@ class mongoDB:
                 deleteImage(resultObj.styleImagePath)
             if className == 'tool':
                 resultObj = Tool.objects.with_id(uid)
+                deleteImage(resultObj.toolImagePath)
             resultObj.delete()
             return {
                 "Mark": True,
@@ -146,21 +146,23 @@ class mongoDB:
                 "Mark": False,
                 "result": "fail"
             }
-    def createTool(self, toolImage, toolTitle, toolDescription, toolPrompt):
+    def createTool(self, toolImage, imageName, toolTitle, toolDescription, toolPrompt):
         try:
             toolObj = Tool(toolImage=toolImage, toolTitle=toolTitle, toolDescription=toolDescription, toolPrompt=toolPrompt)
-            
             resultObj = toolObj.save()
+            imageObj = self.updateToolLogoUrl(str(resultObj.id), imageName)
             return {
                 "Mark": True,
                 "result": {
                     "uid": str(resultObj.id),
                     "toolTitle": resultObj.toolTitle,
                     "toolDescription": resultObj.toolDescription,
+                    "toolImagePath": resultObj.toolImagePath,
                     "toolPrompt": resultObj.toolPrompt
                 }
             }
         except Exception as err :
+            deleteObj = self.deleteObjectById('tool', str(resultObj.id))
             logger.error(err)
             
             return {
@@ -168,10 +170,13 @@ class mongoDB:
                 "result": "create fail!"
             }
     
-    def modifyTool(self, uid: str, toolImage = None, toolTitle = None, toolDescription = None, toolPrompt = None):
+    def modifyTool(self, uid: str, toolImage = None, imageName = None, imagePath = None, toolTitle = None, toolDescription = None, toolPrompt = None):
+        #breakpoint()
         try:
             toolObj = Tool.objects.with_id(uid)
             
+            if imageName is not None:
+                _ = self.updateToolLogoUrl(uid=uid, imageName=imageName)
             if toolImage is not None:
                 toolObj.update(toolImage=toolImage)
             if toolTitle is not None:
@@ -180,9 +185,11 @@ class mongoDB:
                 toolObj.update(toolDescription=toolDescription)
             if toolPrompt is not None:
                 toolObj.update(toolPrompt=toolPrompt)
+            if imagePath is not None:
+                toolObj.update(toolImagePath=imagePath)    
             toolObj.update(updateTime=datetime.utcnow)
-            
             toolObj.save()
+            
             resultObj = Tool.objects.with_id(uid)
             return {
                 "Mark": True,
@@ -195,7 +202,6 @@ class mongoDB:
             }
         except Exception as err :
             logger.error(err)
-            
             return {
                 "Mark": False,
                 "result": "update fail!"
@@ -218,5 +224,25 @@ class mongoDB:
                 "Mark": False,
                 "result": "can not find target"
             }
-                   
+    def updateToolLogoUrl(self, uid, imageName):
+        #breakpoint()
+        try:
+            obj = self.getObjectById('tool', uid)
+            if obj.get('Mark'):
+                result_dict = json.loads(obj.get('result'))
+            
+            imagePath = createImage(uid=uid, imageName=imageName, imageContent=result_dict['toolImage'])
+            resultObj = self.modifyTool(uid=uid, imagePath=imagePath)
+            if resultObj.get('Mark'):
+                return {
+                    "Mark": True,
+                    "result": "success update ImageUrl"
+                }
+        except Exception as err:
+            deleteObj = self.deleteObjectById('tool', uid)
+            logger.error(err)
+            return {
+                "Mark":False,
+                "result": "update err"
+            }               
             

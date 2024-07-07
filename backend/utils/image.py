@@ -2,8 +2,8 @@ import os, io, base64
 from backend.settings import setting
 from PIL import Image
 
-def createImage(uid, styleImage, imageName):
-    imageContent = styleImage.get('$binary')
+def createImage(uid, imageContent, imageName):
+    imageContent = imageContent.get('$binary')
     
     imageType = imageName.split('.')[-1]
     

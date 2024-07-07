@@ -3,7 +3,6 @@ import openai
 from backend.settings import setting
 
 
-
 def chat_deepseek(prompt):
     client = openai.OpenAI(api_key=setting.API_KEY,base_url=setting.BASE_URL)
     
