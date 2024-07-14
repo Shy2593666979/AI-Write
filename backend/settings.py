@@ -23,4 +23,9 @@ class Settings:
     tool_default_logo = "127.0.0.1:6666/upimg/tool.jpg"
     
     tool_default_logo_binary = "upimg/tool.jpg"
+
+    ES_host = "127.0.0.1"
+    
+    ES_port = "9200"
+
 setting = Settings()
