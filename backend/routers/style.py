@@ -8,22 +8,24 @@ from backend.modules import baseMongoDB
 from backend.utils.chatAI import chat_deepseek
 from backend.settings import setting
 from loguru import logger
+import uuid
 
 router = APIRouter(tags=["风格模板管理"])
 
-
 @router.post("/style")
 async def createStyle(styleTitle: str = Form(...), styleContent: str = Form(...), styleImage: UploadFile = File(None)):
-    #breakpoint()
+    uid = uuid.uuid4()
     if styleImage is not None:
-        imageContent = await styleImage.read() 
-        imageName = styleImage.filename
+        logoPath = f"upimg/{uid}.{styleImage.content_type.split('/')[-1]}"
+        with open(logoPath, 'wb') as file:
+            file.write(await styleImage.read())
     else:
-        with open(setting.style_default_logo_binary, "rb") as image:
-            imageContent = image.read()
-        imageName = setting.style_default_logo.split('/')[-1]
+        styleImage = open(setting.style_default_logo_binary, "rb") 
+        logoPath = f"upimg/{uid}.jpg"
+        with open(logoPath, 'wb') as file:
+            file.write(styleImage.read())
         
-    resultObj = baseMongoDB.createStyle(styleImage=imageContent, imageName=imageName, styleTitle=styleTitle, styleContent=styleContent)
+    resultObj = baseMongoDB.createStyle(logoPath=logoPath, styleTitle=styleTitle, styleContent=styleContent)
     
     if resultObj.get('Mark'):
         return jsonable_encoder({"code": 200, "message": "success", "result": resultObj['result']})
@@ -33,12 +35,14 @@ async def createStyle(styleTitle: str = Form(...), styleContent: str = Form(...)
 @router.put("/style")
 async def modifyStyle(uid: str = Form(...), styleImage: UploadFile = File(None), styleTitle: str = Form(None), styleContent: str = Form(None)):
     if styleImage is not None:
-        imageContent = await styleImage.read()
-        imageName = styleImage.filename
+       uid = uuid.uuid4()
+       logoPath = f"upimg/{uid}.{styleImage.content_type.split('/')[-1]}"
+       with open(logoPath, 'wb') as file:
+           file.write(await styleImage.read())
     else:
-        imageContent = None
-        imageName = None
-    resultObj = baseMongoDB.updateStyle(uid, styleImage=imageContent, imageName=imageName, styleTitle=styleTitle, styleContent=styleContent)
+       logoPath = None
+       
+    resultObj = baseMongoDB.updateStyle(uid, logoPath, styleTitle=styleTitle, styleContent=styleContent)
     
     if resultObj.get('Mark'):
         return jsonable_encoder({"code": 200, "message": "success", "result":resultObj["result"]})
